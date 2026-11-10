@@ -16,6 +16,22 @@
     "prepare": "husky",
     "preview": "vite preview"
   },
+  "knip": {
+    "entry": [
+      "src/main.tsx",
+      "src/components/ui/**/*.tsx"
+    ],
+    "ignore": [
+      "src/App.css",
+      "src/lib/utils.ts"
+    ],
+    "ignoreDependencies": [
+      "lucide-react"
+    ],
+    "ignoreBinaries": [
+      "yarn"
+    ]
+  },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@fontsource-variable/geist": "^5.3.0",
