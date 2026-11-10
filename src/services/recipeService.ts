@@ -48,24 +48,30 @@ const getRecipesByAnyTags = (tags: string[]): Recipe[] => {
 };
 
 /**
- * 조건에 맞는 레시피 중 페이지네이션된 레시피 배열을 담은 Promise를 반환합니다.
+ * 조건에 맞는 레시피 중 페이지네이션된 레시피 배열과 총 페이지 수를 담은 Promise를 반환합니다.
  * 태그 목록이 비어 있거나 전달되지 않으면 모든 레시피를 대상으로 합니다.
  *
  * @param offset - 페이지네이션 시 건너뛸 레시피의 시작 인덱스
  * @param limit - 한 번에 가져올 최대 레시피 개수
  * @param tags - 필터링할 태그 문자열 배열
- * @returns 조건에 맞는 레시피 배열을 담은 Promise
+ * @returns 조건에 맞는 레시피 배열과 총 페이지 수를 담은 Promise
  */
 export const getRecipePage = (
   offset: number,
   limit: number,
   tags?: string[],
 ) => {
-  return new Promise<Recipe[]>((resolve) => {
+  return new Promise<{ recipes: Recipe[]; totalPages: number }>((resolve) => {
     setTimeout(() => {
+      if (limit <= 0) {
+        return resolve({ recipes: [], totalPages: 0 });
+      }
       const recipes = getRecipesByAllTags(tags ? tags : []);
 
-      resolve(recipes.slice(offset, offset + limit));
+      resolve({
+        recipes: recipes.slice(offset, offset + limit),
+        totalPages: Math.ceil(recipes.length / limit),
+      });
     }, 1000);
   });
 };
