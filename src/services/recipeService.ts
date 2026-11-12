@@ -95,3 +95,17 @@ export const getRelatedRecipes = (targetRecipe: Recipe) => {
     }, 1000);
   });
 };
+
+export const getRecipe = (id: number) => {
+  return new Promise<Recipe>((resolve, reject) => {
+    setTimeout(() => {
+      const recipe = recipes.find((r) => r.id === id);
+
+      if (recipe) {
+        return resolve(recipe);
+      } else {
+        return reject(new Error("Recipe Not Found"));
+      }
+    }, 1000);
+  });
+};
