@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import RecipeCard from "./components/RecipeCard";
-import { getRecipe, getRelatedRecipes } from "./services/recipeService";
-import type { Recipe } from "./types/recipe";
+import RecipeCard from "../components/RecipeCard";
+import { getRecipe, getRelatedRecipes } from "../services/recipeService";
+import type { Recipe } from "../types/recipe";
 
 function RelatedRecipes({ targetRecipe }: { targetRecipe: Recipe }) {
   const [relatedList, setRelatedList] = useState<Recipe[] | null>(null);
