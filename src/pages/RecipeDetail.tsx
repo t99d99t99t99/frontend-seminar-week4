@@ -106,12 +106,12 @@ function RecipeDescription({ recipe }: { recipe: Recipe }) {
       </div>
 
       <div id="ingredients" className="mt-8 leading-relaxed">
-        <h2 className="mb-3 text-xl font-bold">재료</h2>
+        <h2 className="mb-4 text-xl font-bold">재료</h2>
         <p>{recipe.ingredients.join(", ")}</p>
       </div>
 
       <div id="instructions" className="mt-8 leading-relaxed [&>p]:mt-2">
-        <h2 className="mb-3 text-xl font-bold">레시피</h2>
+        <h2 className="mb-4 text-xl font-bold">레시피</h2>
         {recipe.instructions.map((instruction, index) => (
           <p key={instruction}>
             {index + 1}. {instruction}
@@ -120,7 +120,7 @@ function RecipeDescription({ recipe }: { recipe: Recipe }) {
       </div>
 
       <div id="information" className="mt-8 leading-relaxed [&>p]:mt-2">
-        <h2 className="mb-3 text-xl font-bold">요리 정보</h2>
+        <h2 className="mb-4 text-xl font-bold">요리 정보</h2>
         <p id="cuisine">유형: {recipe.cuisine}</p>
         <p id="meal-type">음식특징: {recipe.mealType}</p>
         <p id="calories-per-serving">칼로리: {recipe.caloriesPerServing}</p>
@@ -167,7 +167,7 @@ function RecipeDetail() {
   }, [id]);
 
   return (
-    <main className="px-4 py-6 sm:px-16 sm:py-20 lg:px-24">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {status === "loading" && <p>레시피를 불러오는 중...</p>}
       {status === "error" && <p>레시피를 불러오지 못했어요</p>}
       {status === "ready" && recipe && <RecipeDescription recipe={recipe} />}
