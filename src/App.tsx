@@ -1,6 +1,6 @@
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import MainPage from "./pages/MainPage";
-import RecipeDetail from "./RecipeDetail";
+import RecipeDetail from "./pages/RecipeDetail";
 
 function App() {
   const navigate = useNavigate();
