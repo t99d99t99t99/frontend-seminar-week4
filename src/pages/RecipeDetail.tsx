@@ -15,7 +15,7 @@ function RelatedRecipes({ relatedList }: { relatedList: Recipe[] }) {
       {relatedList.length === 0 ? (
         <p>관련 레시피가 없어요.</p>
       ) : (
-        <div id="related-recipe-cards" className="group overflow-hidden pb-2">
+        <div id="related-recipe-cards" className="group overflow-hidden py-2">
           <style>{`
             @keyframes recipe-carousel {
               from { transform: translateX(0); }
