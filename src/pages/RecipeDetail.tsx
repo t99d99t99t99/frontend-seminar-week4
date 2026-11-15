@@ -1,46 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import RecipeCard from "../components/RecipeCard";
-import { getRecipe, getRelatedRecipes } from "../services/recipeService";
+import { getRecipeDetail } from "../services/recipeService";
 import type { Recipe } from "../types/recipe";
 
-function RelatedRecipes({ targetRecipe }: { targetRecipe: Recipe }) {
-  const [relatedList, setRelatedList] = useState<Recipe[] | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
-
+function RelatedRecipes({ relatedList }: { relatedList: Recipe[] }) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let active = true;
-
-    setStatus("loading");
-
-    getRelatedRecipes(targetRecipe)
-      .then((data) => {
-        if (!active) return;
-
-        setRelatedList((data as Recipe[]) ?? null);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (active) setStatus("error");
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [targetRecipe]);
 
   return (
     <div id="related-recipes" className="mt-8 leading-relaxed">
       <h2 className="mb-4 text-xl font-bold">
         이 요리와 연관 있는 레시피 보기
       </h2>
-      {status === "loading" && <p>관련 레시피를 불러오는 중...</p>}
-      {status === "error" && <p>관련 레시피를 불러오지 못했어요</p>}
-      {status === "ready" && (
+      {relatedList.length === 0 ? (
+        <p>관련 레시피가 없어요.</p>
+      ) : (
         <div id="related-recipe-cards" className="group overflow-hidden pb-2">
           <style>{`
             @keyframes recipe-carousel {
@@ -51,7 +25,7 @@ function RelatedRecipes({ targetRecipe }: { targetRecipe: Recipe }) {
           <div className="flex w-max animate-[recipe-carousel_120s_linear_infinite] group-hover:paused group-focus-within:paused motion-reduce:animate-none">
             {[0, 1].map((copy) => (
               <div key={copy} className="flex shrink-0 gap-4 pr-4">
-                {relatedList?.map((recipe) => (
+                {relatedList.map((recipe) => (
                   <div key={recipe.id} className="w-60 shrink-0">
                     <RecipeCard
                       recipe={recipe}
@@ -70,7 +44,13 @@ function RelatedRecipes({ targetRecipe }: { targetRecipe: Recipe }) {
   );
 }
 
-function RecipeDescription({ recipe }: { recipe: Recipe }) {
+function RecipeDescription({
+  recipe,
+  relatedRecipes,
+}: {
+  recipe: Recipe;
+  relatedRecipes: Recipe[];
+}) {
   return (
     <>
       <div id="basic-info" className="sm:flex sm:flex-row sm:gap-6">
@@ -90,8 +70,8 @@ function RecipeDescription({ recipe }: { recipe: Recipe }) {
           <p id="total-time">
             총 요리시간 {recipe.cookTimeMinutes + recipe.prepTimeMinutes}분
           </p>
-          <p id="total-time">준비시간 {recipe.prepTimeMinutes}분</p>
-          <p id="total-time">조리시간 {recipe.cookTimeMinutes}분</p>
+          <p id="prep-time">준비시간 {recipe.prepTimeMinutes}분</p>
+          <p id="cook-time">조리시간 {recipe.cookTimeMinutes}분</p>
           <div id="tags" className="mt-3 flex flex-wrap gap-1.5">
             {recipe.tags.map((tag) => (
               <span
@@ -127,7 +107,7 @@ function RecipeDescription({ recipe }: { recipe: Recipe }) {
         <p id="rating">별점: {recipe.rating}</p>
       </div>
 
-      <RelatedRecipes targetRecipe={recipe} />
+      <RelatedRecipes relatedList={relatedRecipes} />
     </>
   );
 }
@@ -135,7 +115,10 @@ function RecipeDescription({ recipe }: { recipe: Recipe }) {
 function RecipeDetail() {
   const { id } = useParams();
 
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [detail, setDetail] = useState<{
+    recipe: Recipe;
+    relatedRecipes: Recipe[];
+  } | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -150,11 +133,11 @@ function RecipeDetail() {
       return setStatus("error");
     }
 
-    getRecipe(recipeId)
+    getRecipeDetail(recipeId)
       .then((data) => {
         if (!active) return;
 
-        setRecipe((data as Recipe) ?? null);
+        setDetail(data);
         setStatus("ready");
       })
       .catch(() => {
@@ -170,7 +153,12 @@ function RecipeDetail() {
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {status === "loading" && <p>레시피를 불러오는 중...</p>}
       {status === "error" && <p>레시피를 불러오지 못했어요</p>}
-      {status === "ready" && recipe && <RecipeDescription recipe={recipe} />}
+      {status === "ready" && detail && (
+        <RecipeDescription
+          recipe={detail.recipe}
+          relatedRecipes={detail.relatedRecipes}
+        />
+      )}
     </main>
   );
 }
