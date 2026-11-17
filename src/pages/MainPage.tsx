@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import RecipeCard from "../components/RecipeCard";
-import { getAllRecipes, getRecipePage } from "../services/recipeService";
+import { getRecipePage, getTags } from "../services/recipeService";
 import type { Recipe } from "../types/recipe";
 
 const PAGE_SIZE = 6;
@@ -12,22 +12,23 @@ type MainPageProps = {
 };
 
 export default function MainPage({ onSelect }: MainPageProps) {
-  const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [filteredCount, setFilteredCount] = useState(0);
   const [tagsStatus, setTagsStatus] = useState<LoadStatus>("loading");
   const [pageStatus, setPageStatus] = useState<LoadStatus>("loading");
 
   useEffect(() => {
     let active = true;
 
-    getAllRecipes()
+    getTags()
       .then((data) => {
         if (!active) return;
 
-        setAllRecipes(data);
+        setTags(data);
         setTagsStatus("ready");
       })
       .catch(() => {
@@ -50,6 +51,7 @@ export default function MainPage({ onSelect }: MainPageProps) {
 
         setRecipes(data.recipes);
         setTotalPages(data.totalPages);
+        setFilteredCount(data.totalCount);
         setPageStatus("ready");
       })
       .catch(() => {
@@ -60,12 +62,6 @@ export default function MainPage({ onSelect }: MainPageProps) {
       active = false;
     };
   }, [page, selectedTags]);
-
-  const tags = Array.from(new Set(allRecipes.flatMap((recipe) => recipe.tags)));
-
-  const filteredCount = allRecipes.filter((recipe) =>
-    selectedTags.every((tag) => recipe.tags.includes(tag)),
-  ).length;
 
   const loading = tagsStatus === "loading" || pageStatus === "loading";
 
