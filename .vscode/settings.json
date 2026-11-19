@@ -3,6 +3,8 @@
   "prettier.enable": false,
   "eslint.enable": false,
   "editor.formatOnSave": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
   "biome.enabled": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "always",
