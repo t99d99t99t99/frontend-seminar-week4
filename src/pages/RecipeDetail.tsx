@@ -1,56 +1,70 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
+import Header from "@/components/Header";
 import RecipeCard from "../components/RecipeCard";
-import { getRecipeDetail } from "../services/recipeService";
+import { recipeQueries } from "../services/recipeService";
 import type { Recipe } from "../types/recipe";
 
-function RelatedRecipes({ relatedList }: { relatedList: Recipe[] }) {
+function RelatedCarousel({ recipes }: { recipes: Recipe[] }) {
   const navigate = useNavigate();
+
+  if (recipes.length === 0) return <p>관련 레시피가 없어요.</p>;
+
+  // 카드와 간격은 16rem이므로 5개면 페이지 최대 너비(72rem)를 채운다.
+  const repetitions = Math.ceil(5 / recipes.length);
+  const carouselRecipes: { key: string; recipe: Recipe }[] = [];
+  for (let repetition = 0; repetition < repetitions; repetition++) {
+    for (const recipe of recipes) {
+      carouselRecipes.push({ key: `${repetition}-${recipe.id}`, recipe });
+    }
+  }
+
+  return (
+    <div id="related-recipe-cards" className="group overflow-hidden py-2">
+      <style>{`
+            @keyframes recipe-carousel {
+              from { transform: translateX(0); }
+              to { transform: translateX(-50%); }
+            }
+          `}</style>
+      <div className="flex w-max animate-[recipe-carousel_120s_linear_infinite] group-hover:paused group-focus-within:paused motion-reduce:animate-none">
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex shrink-0 gap-4 pr-4">
+            {carouselRecipes.map(({ key, recipe }) => (
+              <div key={key} className="w-60 shrink-0">
+                <RecipeCard
+                  recipe={recipe}
+                  onSelect={(id) => {
+                    navigate(`/recipe/${id}`);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RelatedRecipes({ recipe }: { recipe: Recipe }) {
+  const relatedResult = useQuery(recipeQueries.related(recipe.tags));
 
   return (
     <div id="related-recipes" className="mt-8 leading-relaxed">
       <h2 className="mb-4 text-xl font-bold">
         이 요리와 연관 있는 레시피 보기
       </h2>
-      {relatedList.length === 0 ? (
-        <p>관련 레시피가 없어요.</p>
-      ) : (
-        <div id="related-recipe-cards" className="group overflow-hidden py-2">
-          <style>{`
-            @keyframes recipe-carousel {
-              from { transform: translateX(0); }
-              to { transform: translateX(-50%); }
-            }
-          `}</style>
-          <div className="flex w-max animate-[recipe-carousel_120s_linear_infinite] group-hover:paused group-focus-within:paused motion-reduce:animate-none">
-            {[0, 1].map((copy) => (
-              <div key={copy} className="flex shrink-0 gap-4 pr-4">
-                {relatedList.map((recipe) => (
-                  <div key={recipe.id} className="w-60 shrink-0">
-                    <RecipeCard
-                      recipe={recipe}
-                      onSelect={(id) => {
-                        navigate(`/recipe/${id}`);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
+      {relatedResult.isLoading && <p>레시피를 불러오는 중...</p>}
+      {relatedResult.isError && <p>레시피를 불러오지 못했어요</p>}
+      {relatedResult.isSuccess && (
+        <RelatedCarousel recipes={relatedResult.data.recipes} />
       )}
     </div>
   );
 }
 
-function RecipeDescription({
-  recipe,
-  relatedRecipes,
-}: {
-  recipe: Recipe;
-  relatedRecipes: Recipe[];
-}) {
+function RecipeDescription({ recipe }: { recipe: Recipe }) {
   return (
     <>
       <div id="basic-info" className="sm:flex sm:flex-row sm:gap-6">
@@ -107,7 +121,7 @@ function RecipeDescription({
         <p id="rating">별점: {recipe.rating}</p>
       </div>
 
-      <RelatedRecipes relatedList={relatedRecipes} />
+      <RelatedRecipes recipe={recipe} />
     </>
   );
 }
@@ -115,49 +129,15 @@ function RecipeDescription({
 function RecipeDetail() {
   const { id } = useParams();
 
-  const [detail, setDetail] = useState<{
-    recipe: Recipe;
-    relatedRecipes: Recipe[];
-  } | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
-
-  useEffect(() => {
-    let active = true;
-    const recipeId = Number(id);
-
-    setStatus("loading");
-
-    if (Number.isNaN(recipeId)) {
-      return setStatus("error");
-    }
-
-    getRecipeDetail(recipeId)
-      .then((data) => {
-        if (!active) return;
-
-        setDetail(data);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (active) setStatus("error");
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [id]);
+  const recipeResult = useQuery(recipeQueries.id(Number(id)));
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      {status === "loading" && <p>레시피를 불러오는 중...</p>}
-      {status === "error" && <p>레시피를 불러오지 못했어요</p>}
-      {status === "ready" && detail && (
-        <RecipeDescription
-          recipe={detail.recipe}
-          relatedRecipes={detail.relatedRecipes}
-        />
+      <Header />
+      {recipeResult.isLoading && <p>레시피를 불러오는 중...</p>}
+      {recipeResult.isError && <p>레시피를 불러오지 못했어요</p>}
+      {recipeResult.isSuccess && recipeResult.isSuccess && (
+        <RecipeDescription recipe={recipeResult.data} />
       )}
     </main>
   );

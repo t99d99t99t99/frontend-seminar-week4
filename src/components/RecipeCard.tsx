@@ -10,21 +10,21 @@ export default function RecipeCard({ recipe, onSelect }: RecipeCardProps) {
   const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
 
   return (
-    <Card className="gap-0 overflow-hidden p-0 transition-shadow hover:shadow-md">
+    <Card className="h-full gap-0 overflow-hidden p-0 transition-shadow hover:shadow-md">
       <button
         type="button"
         onClick={() => onSelect(recipe.id)}
-        className="block w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
+        className="flex h-full w-full flex-col cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
         aria-label={`${recipe.name} 레시피 보기`}
       >
         <img
           src={recipe.image}
           alt={recipe.name}
           loading="lazy"
-          className="aspect-[4/3] w-full object-cover"
+          className="aspect-4/3 w-full object-cover"
         />
 
-        <span className="flex flex-col gap-2 p-4">
+        <span className="flex flex-1 flex-col gap-2 p-4">
           <strong className="text-lg font-semibold">{recipe.name}</strong>
 
           <span className="text-sm text-muted-foreground">
