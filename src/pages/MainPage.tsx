@@ -2,7 +2,6 @@ import { useDebouncedValue } from "@tanstack/react-pacer";
 import { type UseQueryResult, useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import Header from "@/components/Header";
 import {
   InputGroup,
   InputGroupAddon,
@@ -235,8 +234,6 @@ export default function MainPage({ onSelect }: MainPageProps) {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Header />
-
       <SearchBar onSearchQueryChange={toggleSearch} />
 
       {tagsResult.isSuccess && (

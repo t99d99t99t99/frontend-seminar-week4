@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "@/components/Header";
 import FavoriteButton from "../components/FavoriteButton";
 import RecipeCard from "../components/RecipeCard";
 import { recipeQueries } from "../services/recipeService";
@@ -144,8 +143,6 @@ function RecipeDetail() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Header />
-
       {recipeResult.isLoading && <p>레시피를 불러오는 중...</p>}
       {recipeResult.isError && <p>레시피를 불러오지 못했어요</p>}
       {recipeResult.isSuccess && (
